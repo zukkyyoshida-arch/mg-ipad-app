@@ -2,10 +2,11 @@ import React from 'react'
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const tabs = [
-    { id: 'dashboard', label: 'ダッシュボード', icon: '📊' },
-    { id: 'financials', label: '決算書', icon: '📈' },
-    { id: 'performance', label: '経営成績', icon: '🎯' },
     { id: 'ledger', label: '出納帳', icon: '📝' },
+    { id: 'statements', label: '決算書', icon: '📈' },
+    { id: 'periodEnd', label: '期末処理', icon: '📅' },
+    { id: 'plan', label: '計画表', icon: '🎯' },
+    { id: 'board', label: '会社盤', icon: '🎮' },
     { id: 'settings', label: '設定', icon: '⚙️' },
   ]
 
