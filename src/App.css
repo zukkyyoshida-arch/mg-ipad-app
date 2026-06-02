@@ -4,19 +4,48 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 100vw;
   background: var(--bg-app);
+  overflow: hidden;
 }
 
+/* TopBar */
+.topbar {
+  height: var(--topbar-height, 64px);
+  background: var(--bg-shell);
+  border-bottom: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 20px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  z-index: 100;
+}
+
+/* Main Container: Sidebar + Content */
 .main-container {
   display: flex;
   flex: 1;
   overflow: hidden;
+  width: 100%;
+  gap: 0;
 }
 
 /* Landscape layout (default for iPad) */
 @media (orientation: landscape) {
   .main-container {
     flex-direction: row;
+  }
+
+  .sidebar {
+    width: var(--sidebar-width, 200px);
+    flex-shrink: 0;
+    border-right: 1px solid var(--border-glass);
+  }
+
+  .main-content {
+    flex: 1;
   }
 }
 
@@ -25,6 +54,27 @@
   .main-container {
     flex-direction: column;
   }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    border-bottom: 1px solid var(--border-glass);
+    border-right: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .main-content {
+    flex: 1;
+  }
+}
+
+.sidebar {
+  background: var(--bg-shell);
+  overflow-y: auto;
+  flex-shrink: 0;
+  z-index: 50;
 }
 
 .main-content {
@@ -32,10 +82,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: var(--bg-app);
-}
-
-/* Smooth scrolling for iPad */
-.main-content {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
+  width: 100%;
 }

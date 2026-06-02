@@ -10,34 +10,44 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     { id: 'settings', label: '設定', icon: '⚙️' },
   ]
 
+  const isPortrait = window.innerWidth < window.innerHeight
+
   return (
     <div style={{
-      width: 'var(--sidebar-width)',
+      width: isPortrait ? '100%' : 'var(--sidebar-width)',
       background: 'var(--bg-shell)',
-      borderRight: '1px solid var(--border-glass)',
-      overflowY: 'auto',
+      borderRight: isPortrait ? 'none' : '1px solid var(--border-glass)',
+      borderBottom: isPortrait ? '1px solid var(--border-glass)' : 'none',
+      overflowY: isPortrait ? 'hidden' : 'auto',
+      overflowX: isPortrait ? 'auto' : 'hidden',
       display: 'flex',
-      flexDirection: 'column',
-      padding: '20px 0',
+      flexDirection: isPortrait ? 'row' : 'column',
+      padding: isPortrait ? '0' : '20px 0',
+      gap: isPortrait ? '0' : '0',
     }}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}
           style={{
-            width: '100%',
-            padding: '12px 16px',
+            width: isPortrait ? 'auto' : '100%',
+            minWidth: isPortrait ? '120px' : 'auto',
+            padding: isPortrait ? '12px 12px' : '12px 16px',
             background: activeTab === tab.id ? 'var(--surface-accent)' : 'transparent',
             border: 'none',
-            borderLeft: activeTab === tab.id ? '4px solid var(--color-accent)' : '4px solid transparent',
+            borderLeft: isPortrait ? 'none' : activeTab === tab.id ? '4px solid var(--color-accent)' : '4px solid transparent',
+            borderBottom: isPortrait ? activeTab === tab.id ? '4px solid var(--color-accent)' : '4px solid transparent' : 'none',
             color: activeTab === tab.id ? 'var(--color-accent)' : 'var(--text-primary)',
-            fontSize: '0.9rem',
+            fontSize: isPortrait ? '0.8rem' : '0.9rem',
             fontWeight: activeTab === tab.id ? '600' : '500',
             cursor: 'pointer',
             display: 'flex',
+            flexDirection: isPortrait ? 'column' : 'row',
             alignItems: 'center',
-            gap: '8px',
+            justifyContent: 'center',
+            gap: isPortrait ? '4px' : '8px',
             transition: 'all 0.2s ease',
+            whiteSpace: 'nowrap',
           }}
         >
           <span style={{ fontSize: '1.2rem' }}>{tab.icon}</span>
