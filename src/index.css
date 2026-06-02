@@ -152,22 +152,30 @@ h1, h2, h3, h4, h5, h6 {
 
 /* iPad Pro 12.9" (1366px) */
 @media (min-width: 1366px) {
-  --sidebar-width: 240px;
+  :root {
+    --sidebar-width: 240px;
+  }
 }
 
 /* iPad Pro 11" (1194px) */
 @media (min-width: 1194px) and (max-width: 1365px) {
-  --sidebar-width: 220px;
+  :root {
+    --sidebar-width: 220px;
+  }
 }
 
 /* iPad (1024px) */
 @media (min-width: 1024px) and (max-width: 1193px) {
-  --sidebar-width: 200px;
+  :root {
+    --sidebar-width: 200px;
+  }
 }
 
 /* iPad Mini (768px) */
 @media (min-width: 768px) and (max-width: 1023px) {
-  --sidebar-width: 180px;
+  :root {
+    --sidebar-width: 180px;
+  }
 
   .main-content {
     padding: 16px;
