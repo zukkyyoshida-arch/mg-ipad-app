@@ -1,4 +1,4 @@
-/* iPad App Global Styles */
+/* iPad App Global Styles - Landscape Only */
 
 :root {
   --topbar-height: 64px;
@@ -23,13 +23,25 @@ html, body {
   height: 100%;
 }
 
+/* iPad Shell - 外側の枠 */
+.ipad-shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-app);
+  overflow: hidden;
+}
+
+/* iPad Layout */
 .ipad-layout {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   background: var(--bg-app);
   overflow: hidden;
+  flex: 1;
 }
 
 /* TopBar */
@@ -39,8 +51,8 @@ html, body {
   border-bottom: 1px solid var(--border-glass);
   display: flex;
   align-items: center;
-  padding: 0 20px;
-  gap: 20px;
+  padding: 0 16px;
+  gap: 16px;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
   z-index: 100;
@@ -55,9 +67,9 @@ html, body {
   gap: 0;
 }
 
-/* Sidebar */
+/* Sidebar - 左側 */
 .sidebar {
-  width: auto;
+  width: var(--sidebar-width);
   background: var(--bg-shell);
   border-right: 1px solid var(--border-glass);
   overflow-y: auto;
@@ -65,31 +77,8 @@ html, body {
   flex-shrink: 0;
   z-index: 50;
   display: flex;
-  flex-direction: row;
-}
-
-/* 横向き時の Sidebar */
-@media (orientation: landscape) and (min-width: 1024px) {
-  .sidebar {
-    width: var(--sidebar-width);
-    flex-direction: column;
-    border-right: 1px solid var(--border-glass);
-    border-bottom: none;
-  }
-}
-
-/* 縦向き時の Sidebar */
-@media (orientation: portrait) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    max-height: 180px;
-    flex-direction: row;
-    border-right: none;
-    border-bottom: 1px solid var(--border-glass);
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
+  flex-direction: column;
+  padding: 8px 0;
 }
 
 /* メインコンテンツ */
@@ -104,7 +93,7 @@ html, body {
   min-width: 0;
 }
 
-/* 会社盤ミニマップパネル */
+/* 会社盤ミニマップパネル - 右側 */
 .minimap-panel {
   width: var(--minimap-width);
   background: var(--bg-shell);
@@ -116,38 +105,27 @@ html, body {
   z-index: 30;
 }
 
-/* 横向き iPad のみミニマップ表示 */
+/* 縦向きでは非表示（表示しないより、本来は画面を横に向けるよう促す） */
 @media (orientation: portrait) {
-  .minimap-panel {
+  .ipad-shell {
     display: none;
   }
 }
 
-/* パソコン（幅広い画面）での表示調整 */
-@media (min-width: 1366px) {
+/* レスポンシブ - 小さいディスプレイ用 */
+@media (max-width: 1024px) {
+  .minimap-panel {
+    width: 250px;
+  }
+
   :root {
-    --minimap-width: 350px;
-  }
-
-  .main-container {
-    max-width: 100vw;
+    --sidebar-width: 160px;
   }
 }
 
-/* タブレット用調整 */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* 大画面用 */
+@media (min-width: 1400px) {
   .minimap-panel {
-    width: 280px;
-  }
-}
-
-/* 小画面での調整 */
-@media (max-width: 768px) {
-  .minimap-panel {
-    display: none;
-  }
-
-  .sidebar {
-    width: 100%;
+    width: 350px;
   }
 }

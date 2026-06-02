@@ -5,7 +5,7 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
 
-  /* Theme Defaults (iPad Light Theme) */
+  /* Theme Defaults */
   --bg-app: #F3F4F6;
   --bg-shell: #FFFFFF;
   --bg-glass: #FFFFFF;
@@ -44,10 +44,10 @@
   --surface-warning: #FFFBEB;
   --surface-success: #F0FDF4;
 
-  /* iPad-specific layout */
-  --sidebar-width: 200px;
-  --topbar-height: 64px;
+  /* Layout Constants */
+  --header-height: 64px;
   --nav-height: 0px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 * {
@@ -63,7 +63,7 @@
 }
 
 html, body {
-  background-color: var(--bg-app);
+  background-color: #4B5563;
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 16px;
@@ -73,6 +73,9 @@ html, body {
   height: 100%;
   overflow: hidden;
   overscroll-behavior: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -82,102 +85,48 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.25;
 }
 
+/* Root Container */
 #root {
   width: 100vw;
   height: 100vh;
   display: flex;
-  flex-direction: column;
-  background-color: var(--bg-app);
-}
-
-/* iPad Layout */
-.ipad-layout {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-.topbar {
-  height: var(--topbar-height);
-  background: var(--bg-shell);
-  border-bottom: 1px solid var(--border-glass);
-  display: flex;
+  justify-content: center;
   align-items: center;
-  padding: 0 20px;
-  box-shadow: var(--shadow-sm);
-}
-
-.main-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-.sidebar {
-  width: var(--sidebar-width);
-  background: var(--bg-shell);
-  border-right: 1px solid var(--border-glass);
-  overflow-y: auto;
-  padding: 20px 0;
-}
-
-.main-content {
-  flex: 1;
-  overflow-y: auto;
+  background-color: #4B5563;
   padding: 20px;
-  background: var(--bg-app);
 }
 
-/* Landscape orientation */
-@media (orientation: landscape) {
-  .ipad-layout {
-    flex-direction: row;
-  }
+/* iPad Frame - 横向き (1024x768 or similar) */
+.ipad-shell {
+  width: 100%;
+  max-width: 1366px;
+  height: 100%;
+  max-height: 100vh;
+  position: relative;
+  background-color: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 12px solid #2C2C2C;
+  border-radius: 28px;
+  aspect-ratio: 16 / 10;
 }
 
-/* Portrait orientation */
+/* Landscape Orientation Only */
 @media (orientation: portrait) {
-  .main-container {
-    flex-direction: column;
+  body, html {
+    display: none;
   }
 
-  .sidebar {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid var(--border-glass);
-    height: auto;
-    max-height: 200px;
-  }
-}
-
-/* iPad Pro 12.9" (1366px) */
-@media (min-width: 1366px) {
-  :root {
-    --sidebar-width: 240px;
-  }
-}
-
-/* iPad Pro 11" (1194px) */
-@media (min-width: 1194px) and (max-width: 1365px) {
-  :root {
-    --sidebar-width: 220px;
-  }
-}
-
-/* iPad (1024px) */
-@media (min-width: 1024px) and (max-width: 1193px) {
-  :root {
-    --sidebar-width: 200px;
-  }
-}
-
-/* iPad Mini (768px) */
-@media (min-width: 768px) and (max-width: 1023px) {
-  :root {
-    --sidebar-width: 180px;
-  }
-
-  .main-content {
-    padding: 16px;
+  #root::before {
+    content: '横向きでご使用ください';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
   }
 }

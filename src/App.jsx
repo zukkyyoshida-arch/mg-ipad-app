@@ -507,7 +507,8 @@ function App() {
   }
 
   return (
-    <div className="ipad-layout">
+    <div className="ipad-shell">
+      <div className="ipad-layout">
       <TopBar currentPeriod={currentPeriod} theme={theme} toggleTheme={toggleTheme} syncStatus={syncStatus} />
       <div className="main-container">
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -539,6 +540,7 @@ function App() {
           </ErrorBoundary>
         )
       })()}
+      </div>
     </div>
   )
 }
