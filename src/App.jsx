@@ -8,8 +8,12 @@ import PriorPeriodCarryover from './components/PriorPeriodCarryover'
 import PerformanceReport from './components/PerformanceReport'
 import CompanyBoardMinimap from './components/CompanyBoardMinimap'
 import ErrorBoundary from './components/ErrorBoundary'
-import { syncPlayerData, removePlayer } from './firebase'
+// import { syncPlayerData, removePlayer } from './firebase'
 import './App.css'
+
+// Firebase のダミー関数（ローカル開発用）
+const syncPlayerData = () => Promise.resolve()
+const removePlayer = () => {}
 import TopBar from './components/Layout/TopBar'
 import Sidebar from './components/Layout/Sidebar'
 
@@ -443,9 +447,45 @@ function App() {
         )
       case 'board':
         return (
-          <ErrorBoundary>
-            <CompanyBoardMinimap carryover={currentData.carryover} results={results} />
-          </ErrorBoundary>
+          <div style={{ padding: '20px', height: '100%' }}>
+            <h2 style={{ margin: '0 0 20px 0', color: 'var(--text-primary)' }}>🎮 会社盤</h2>
+            <p style={{ color: 'var(--text-secondary)' }}>会社盤は右側パネルに常時表示されています</p>
+            <div style={{
+              marginTop: '20px',
+              padding: '20px',
+              background: 'var(--bg-shell)',
+              borderRadius: '8px',
+              border: '1px solid var(--border-glass)'
+            }}>
+              <h3 style={{ margin: '0 0 12px 0', color: 'var(--text-primary)' }}>現在の経営状態</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.9rem' }}>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)' }}>現金</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--mg-blue)' }}>
+                    {(results?.bs?.cash || 0).toLocaleString()}万円
+                  </div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)' }}>純資産</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--mg-green)' }}>
+                    {(results?.bs?.totalNetAssets || 0).toLocaleString()}万円
+                  </div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)' }}>売上</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--mg-pink)' }}>
+                    {(results?.pl?.salesRevenue || 0).toLocaleString()}万円
+                  </div>
+                </div>
+                <div>
+                  <div style={{ color: 'var(--text-secondary)' }}>利益</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: (results?.pl?.operatingProfit || 0) >= 0 ? 'var(--mg-green)' : '#ef4444' }}>
+                    {(results?.pl?.operatingProfit || 0).toLocaleString()}万円
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )
       case 'settings':
         return (

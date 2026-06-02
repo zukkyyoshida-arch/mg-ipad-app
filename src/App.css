@@ -1,5 +1,28 @@
 /* iPad App Global Styles */
 
+:root {
+  --topbar-height: 64px;
+  --sidebar-width: 200px;
+  --minimap-width: 300px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
 .ipad-layout {
   display: flex;
   flex-direction: column;
@@ -11,7 +34,7 @@
 
 /* TopBar */
 .topbar {
-  height: var(--topbar-height, 64px);
+  height: var(--topbar-height);
   background: var(--bg-shell);
   border-bottom: 1px solid var(--border-glass);
   display: flex;
@@ -23,7 +46,7 @@
   z-index: 100;
 }
 
-/* Main Container: Sidebar + Content */
+/* Main Container: Sidebar + Content + Minimap */
 .main-container {
   display: flex;
   flex: 1;
@@ -32,51 +55,44 @@
   gap: 0;
 }
 
-/* Landscape layout (default for iPad) */
-@media (orientation: landscape) {
-  .main-container {
-    flex-direction: row;
-  }
+/* Sidebar */
+.sidebar {
+  width: auto;
+  background: var(--bg-shell);
+  border-right: 1px solid var(--border-glass);
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: row;
+}
 
+/* 横向き時の Sidebar */
+@media (orientation: landscape) and (min-width: 1024px) {
   .sidebar {
-    width: var(--sidebar-width, 200px);
-    flex-shrink: 0;
+    width: var(--sidebar-width);
+    flex-direction: column;
     border-right: 1px solid var(--border-glass);
-  }
-
-  .main-content {
-    flex: 1;
+    border-bottom: none;
   }
 }
 
-/* Portrait layout */
+/* 縦向き時の Sidebar */
 @media (orientation: portrait) {
-  .main-container {
-    flex-direction: column;
-  }
-
   .sidebar {
     width: 100%;
     height: auto;
     max-height: 180px;
-    border-bottom: 1px solid var(--border-glass);
+    flex-direction: row;
     border-right: none;
+    border-bottom: 1px solid var(--border-glass);
     overflow-x: auto;
     overflow-y: hidden;
   }
-
-  .main-content {
-    flex: 1;
-  }
 }
 
-.sidebar {
-  background: var(--bg-shell);
-  overflow-y: auto;
-  flex-shrink: 0;
-  z-index: 50;
-}
-
+/* メインコンテンツ */
 .main-content {
   flex: 1;
   overflow-y: auto;
@@ -85,21 +101,53 @@
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
   width: 100%;
+  min-width: 0;
 }
 
 /* 会社盤ミニマップパネル */
 .minimap-panel {
-  width: 280px;
+  width: var(--minimap-width);
   background: var(--bg-shell);
   border-left: 1px solid var(--border-glass);
   overflow-y: auto;
   padding: 16px;
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
+  z-index: 30;
 }
 
+/* 横向き iPad のみミニマップ表示 */
 @media (orientation: portrait) {
   .minimap-panel {
     display: none;
+  }
+}
+
+/* パソコン（幅広い画面）での表示調整 */
+@media (min-width: 1366px) {
+  :root {
+    --minimap-width: 350px;
+  }
+
+  .main-container {
+    max-width: 100vw;
+  }
+}
+
+/* タブレット用調整 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .minimap-panel {
+    width: 280px;
+  }
+}
+
+/* 小画面での調整 */
+@media (max-width: 768px) {
+  .minimap-panel {
+    display: none;
+  }
+
+  .sidebar {
+    width: 100%;
   }
 }
