@@ -2,6 +2,7 @@ import React from 'react'
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const tabs = [
+    { id: 'dashboard', label: 'ルーム連携', icon: '🌐' },
     { id: 'ledger', label: '出納帳', icon: '📝' },
     { id: 'statements', label: '決算書', icon: '📈' },
     { id: 'periodEnd', label: '期末処理', icon: '📅' },

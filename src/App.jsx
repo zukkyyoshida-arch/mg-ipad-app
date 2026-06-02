@@ -8,6 +8,7 @@ import PriorPeriodCarryover from './components/PriorPeriodCarryover'
 import PerformanceReport from './components/PerformanceReport'
 import CompanyBoardMinimap from './components/CompanyBoardMinimap'
 import ErrorBoundary from './components/ErrorBoundary'
+import { syncPlayerData, removePlayer } from './firebase'
 import './App.css'
 import TopBar from './components/Layout/TopBar'
 import Sidebar from './components/Layout/Sidebar'
@@ -38,6 +39,17 @@ function App() {
   // 成績表表示の状態
   const [showPerformanceReport, setShowPerformanceReport] = useState(false)
 
+  // Firebase Room/Player ID
+  const [roomId, setRoomId] = useState(() => safeStorage.getItem('mg_ipad_room_id') || '')
+  const [playerId, setPlayerId] = useState(() => safeStorage.getItem('mg_ipad_player_id') || '')
+  const [isOffline, setIsOffline] = useState(() => safeStorage.getItem('mg_ipad_offline_mode') === 'true')
+  const [showLogin, setShowLogin] = useState(() => {
+    if (safeStorage.getItem('mg_ipad_offline_mode') === 'true') return false
+    return !safeStorage.getItem('mg_ipad_room_id') || !safeStorage.getItem('mg_ipad_player_id')
+  })
+  const [loginInput, setLoginInput] = useState({ room: safeStorage.getItem('mg_ipad_room_id') || '', player: safeStorage.getItem('mg_ipad_player_id') || '' })
+  const [syncStatus, setSyncStatus] = useState(isOffline ? 'オフライン' : '未同期')
+
   // 全期 (1期〜5期) のデータ管理
   const [periods, setPeriods] = useState(() => {
     const saved = safeStorage.getItem('mg_ipad_periods_data')
@@ -48,7 +60,6 @@ function App() {
         console.error('Failed to parse periods data', e)
       }
     }
-    // 初期データ (1期〜5期)
     const initialData = {}
     for (let i = 1; i <= 5; i++) {
       initialData[i] = JSON.parse(JSON.stringify(DEFAULT_PERIOD_DATA))
@@ -62,7 +73,7 @@ function App() {
     return saved ? Number(saved) : 1
   })
 
-  // アクティブなタブ (ledger, statements, periodEnd, plan, settings)
+  // アクティブなタブ (ledger, statements, periodEnd, plan, board, settings, dashboard)
   const [activeTab, setActiveTab] = useState('ledger')
 
   // 取引モード ('cash' or 'credit')
@@ -83,6 +94,11 @@ function App() {
     safeStorage.setItem('mg_ipad_transaction_mode', transactionMode)
   }, [transactionMode])
 
+  useEffect(() => {
+    safeStorage.setItem('mg_ipad_room_id', roomId)
+    safeStorage.setItem('mg_ipad_player_id', playerId)
+  }, [roomId, playerId])
+
   // テーマ切り替え処理
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -99,7 +115,48 @@ function App() {
   // リアルタイム財務計算を実行
   const results = calculateFinancials(currentData.carryover, currentData.ledger, currentData.actuals, currentPeriod)
 
-  // データの更新関数群
+  // Firebase 同期
+  useEffect(() => {
+    if (roomId && playerId && !isOffline) {
+      setSyncStatus('同期中...')
+      const periodsData = {}
+      for (let p = 1; p <= 5; p++) {
+        const pData = periods[p]
+        if (pData) {
+          const pResults = calculateFinancials(pData.carryover, pData.ledger, pData.actuals, p)
+          periodsData[p] = {
+            totalNetAssets: pResults?.bs?.totalNetAssets || 0,
+            sales: pResults?.pl?.salesRevenue || 0,
+            profit: pResults?.pl?.operatingProfit || 0,
+            salesQty: pResults?.prod?.salesCount || 0,
+            averagePrice: pResults?.prod?.salesCount > 0 ? Math.round((pResults?.pl?.salesRevenue || 0) / (pResults?.prod?.salesCount || 1)) : 0,
+            cash: pResults?.bs?.cash || 0,
+            capital: pResults?.bs?.capital || 0,
+            retainedEarnings: pResults?.bs?.retainedEarnings || 0
+          }
+        }
+      }
+      syncPlayerData(roomId, playerId, {
+        currentPeriod,
+        totalNetAssets: results?.bs?.totalNetAssets || 0,
+        cash: results?.bs?.cash || 0,
+        capital: results?.bs?.capital || 0,
+        retainedEarnings: results?.bs?.retainedEarnings || 0,
+        sales: results?.pl?.salesRevenue || 0,
+        profit: results?.pl?.operatingProfit || 0,
+        salesQty: results?.prod?.salesCount || 0,
+        averagePrice: results?.prod?.salesCount > 0 ? Math.round((results?.pl?.salesRevenue || 0) / (results?.prod?.salesCount || 1)) : 0,
+        lastUpdated: Date.now(),
+        periods: periodsData
+      }).then(() => {
+        setSyncStatus(`同期完了 (${new Date().toLocaleTimeString()})`)
+      }).catch(() => {
+        setSyncStatus('同期エラー')
+      })
+    }
+  }, [results, currentPeriod, roomId, playerId, isOffline, periods])
+
+  // データ更新関数
   const updatePeriodData = (field, newData) => {
     setPeriods(prev => ({
       ...prev,
@@ -110,7 +167,7 @@ function App() {
     }))
   }
 
-  // 全期リセット機能
+  // 全期リセット
   const resetAllData = () => {
     if (window.confirm('全てのデータを初期化して最初から開始しますか？\n（この操作は取り消せません）')) {
       const freshData = {}
@@ -124,48 +181,39 @@ function App() {
     }
   }
 
-  // 前期の期末決算データから今期の期首データ（繰越）を自動引き継ぎ
+  // 前期ロールフォワード
   const rollForwardFromPrevious = () => {
     if (currentPeriod <= 1) return
     const prevPeriod = currentPeriod - 1
     const prevData = periods[prevPeriod]
     if (!prevData) return
 
-    // 前期の決算計算結果を取得
     const prevResults = calculateFinancials(prevData.carryover, prevData.ledger, prevData.actuals, prevPeriod)
-
     const prevBS = prevResults.bs
     const prevMat = prevResults.mat
     const prevWip = prevResults.wip
     const prevProd = prevResults.prod
     const prevMach = prevResults.machines
 
-    // B/S残高を引き継ぎ（次期に必要な全情報を網羅）
     const nextCarryover = {
-      // 現金
       cash: prevBS.cash,
-      // 棚卸資産
       materialsCount: prevMat.endingCount,
       materialsValue: prevMat.endingValue,
       wipCount: prevWip.endingCount,
       wipValue: prevWip.endingValue,
       productCount: prevProd.endingCount,
       productValue: prevProd.endingValue,
-      // 機械設備
       largeMachines: prevMach.large,
       smallMachines: prevMach.small,
       attachments: prevMach.attachments,
       machinesCount: prevMach.large + prevMach.small,
       machinesValue: prevBS.fixedAssets,
-      // 負債
       loan: prevBS.loans,
       receivables: prevBS.receivables,
       payables: prevBS.payables,
-      taxes: prevBS.unpaidTax, // 未払法人税等
-      // 純資産
+      taxes: prevBS.unpaidTax,
       retainedEarnings: prevBS.retainedEarnings,
       capital: prevBS.capital,
-      // 人員
       workers: prevResults.workers || 0,
       salesmen: prevResults.salesmen || 0
     }
@@ -185,12 +233,162 @@ function App() {
           }
         }
       }))
-      alert(`第${currentPeriod}期の期首データを自動設定しました！「設定」タブから内訳を確認・修正できます。`)
+      alert(`第${currentPeriod}期の期首データを自動設定しました！`)
     }
   }
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'dashboard':
+        return (
+          <div style={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <h2 style={{ margin: '0 0 20px 0' }}>📊 ルーム連携ダッシュボード</h2>
+            {showLogin ? (
+              <div style={{
+                padding: '20px',
+                background: 'var(--bg-shell)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-glass)',
+                maxWidth: '500px'
+              }}>
+                <h3 style={{ marginTop: 0 }}>研修ルームに参加</h3>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>ルームID</label>
+                  <input
+                    type="text"
+                    value={loginInput.room}
+                    onChange={e => setLoginInput({...loginInput, room: e.target.value})}
+                    placeholder="例: mg-tokyo-01"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid var(--border-glass)',
+                      borderRadius: '6px',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>プレイヤー名</label>
+                  <input
+                    type="text"
+                    value={loginInput.player}
+                    onChange={e => setLoginInput({...loginInput, player: e.target.value})}
+                    placeholder="例: 鈴木一郎"
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid var(--border-glass)',
+                      borderRadius: '6px',
+                      fontSize: '1rem',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const cleanRoom = loginInput.room.trim()
+                    const cleanPlayer = loginInput.player.trim()
+                    if (!cleanRoom || !cleanPlayer) {
+                      alert('ルームIDとプレイヤー名を入力してください')
+                      return
+                    }
+                    safeStorage.setItem('mg_ipad_room_id', cleanRoom)
+                    safeStorage.setItem('mg_ipad_player_id', cleanPlayer)
+                    safeStorage.setItem('mg_ipad_offline_mode', 'false')
+                    setRoomId(cleanRoom)
+                    setPlayerId(cleanPlayer)
+                    setIsOffline(false)
+                    setShowLogin(false)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'var(--color-accent)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    marginBottom: '12px'
+                  }}
+                >
+                  参加する
+                </button>
+                <button
+                  onClick={() => {
+                    safeStorage.setItem('mg_ipad_offline_mode', 'true')
+                    setIsOffline(true)
+                    setSyncStatus('オフライン')
+                    setShowLogin(false)
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: 'var(--surface-subtle)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-glass)',
+                    borderRadius: '6px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  参加せずにプレイする
+                </button>
+              </div>
+            ) : (
+              <div style={{
+                padding: '20px',
+                background: 'var(--bg-shell)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-glass)'
+              }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>ルームID</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '4px' }}>{roomId}</div>
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>プレイヤー名</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: 'var(--text-primary)', marginTop: '4px' }}>{playerId}</div>
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>同期ステータス</div>
+                  <div style={{ fontSize: '1rem', color: syncStatus.includes('エラー') ? '#ef4444' : 'var(--mg-green)', marginTop: '4px' }}>{syncStatus}</div>
+                </div>
+                <button
+                  onClick={() => {
+                    if(window.confirm('ルーム設定を変更しますか？')) {
+                      if (roomId && playerId) {
+                        removePlayer(roomId, playerId)
+                      }
+                      safeStorage.setItem('mg_ipad_room_id', '')
+                      safeStorage.setItem('mg_ipad_player_id', '')
+                      setRoomId('')
+                      setPlayerId('')
+                      setShowLogin(true)
+                    }
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    background: '#ef4444',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ルーム変更
+                </button>
+              </div>
+            )}
+          </div>
+        )
       case 'ledger':
         return (
           <ErrorBoundary>
@@ -270,11 +468,17 @@ function App() {
 
   return (
     <div className="ipad-layout">
-      <TopBar currentPeriod={currentPeriod} theme={theme} toggleTheme={toggleTheme} />
+      <TopBar currentPeriod={currentPeriod} theme={theme} toggleTheme={toggleTheme} syncStatus={syncStatus} />
       <div className="main-container">
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="main-content">
           {renderContent()}
+        </div>
+        {/* 会社盤ミニマップ：常時表示 */}
+        <div className="minimap-panel">
+          <ErrorBoundary>
+            <CompanyBoardMinimap carryover={currentData.carryover} results={results} />
+          </ErrorBoundary>
         </div>
       </div>
 

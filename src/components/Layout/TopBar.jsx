@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function TopBar({ currentPeriod, theme, toggleTheme }) {
+export default function TopBar({ currentPeriod, theme, toggleTheme, syncStatus }) {
   return (
     <div style={{
       height: 'var(--topbar-height)',
@@ -22,20 +22,32 @@ export default function TopBar({ currentPeriod, theme, toggleTheme }) {
         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>iPad版</span>
       </div>
 
-      {/* 中央: 現在期表示 */}
+      {/* 中央: 現在期表示と同期ステータス */}
       <div style={{
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '8px 16px',
-        background: 'var(--surface-accent)',
-        borderRadius: '6px',
-        minWidth: '100px'
+        gap: '16px'
       }}>
-        <span style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--color-accent)' }}>
-          第{currentPeriod}期
-        </span>
+        <div style={{
+          padding: '8px 16px',
+          background: 'var(--surface-accent)',
+          borderRadius: '6px'
+        }}>
+          <span style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--color-accent)' }}>
+            第{currentPeriod}期
+          </span>
+        </div>
+        {syncStatus && (
+          <div style={{
+            fontSize: '0.85rem',
+            color: syncStatus.includes('エラー') ? '#ef4444' : 'var(--text-secondary)',
+            whiteSpace: 'nowrap'
+          }}>
+            ☁️ {syncStatus}
+          </div>
+        )}
       </div>
 
       {/* 右側: アクション */}
