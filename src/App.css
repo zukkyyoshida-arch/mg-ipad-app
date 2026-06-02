@@ -1,0 +1,41 @@
+/* iPad App Global Styles */
+
+.ipad-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-app);
+}
+
+.main-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Landscape layout (default for iPad) */
+@media (orientation: landscape) {
+  .main-container {
+    flex-direction: row;
+  }
+}
+
+/* Portrait layout */
+@media (orientation: portrait) {
+  .main-container {
+    flex-direction: column;
+  }
+}
+
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-app);
+}
+
+/* Smooth scrolling for iPad */
+.main-content {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
