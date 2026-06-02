@@ -1,94 +1,36 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { calculateFinancials } from '../../utils/calculations'
 
 export default function Dashboard({ periods, currentPeriod, results }) {
   const [selectedTab, setSelectedTab] = useState('overall')
 
-  // タブに応じたプレイヤー（期）データ生成
-  const getProcessedPeriods = () => {
-    const periodEntries = []
+  // 期別データを計算
+  const sortedPeriods = useMemo(() => {
+    const periodsList = []
 
     for (let p = 1; p <= 5; p++) {
-      const pData = periods[p]
+      const pData = periods?.[p]
       if (!pData) continue
 
-      const pResults = calculateFinancials(pData.carryover, pData.ledger, pData.actuals, p)
+      const pResults = calculateFinancials(pData.carryover || {}, pData.ledger || [], pData.actuals || {}, p)
 
-      let sales = 0
-      let profit = 0
-      let salesQty = 0
-      let totalNetAssets = 0
+      const totalNetAssets = pResults?.bs?.totalNetAssets || 0
+      const sales = pResults?.pl?.salesRevenue || 0
+      const profit = pResults?.pl?.operatingProfit || 0
+      const salesQty = pResults?.prod?.salesCount || 0
 
-      if (selectedTab === 'overall') {
-        // 全期合計
-        for (let i = 1; i <= 5; i++) {
-          const iData = periods[i]
-          if (iData) {
-            const iResults = calculateFinancials(iData.carryover, iData.ledger, iData.actuals, i)
-            sales += iResults?.pl?.salesRevenue || 0
-            profit += iResults?.pl?.operatingProfit || 0
-            salesQty += iResults?.prod?.salesCount || 0
-            totalNetAssets = iResults?.bs?.totalNetAssets || 0
-          }
-        }
-      } else {
-        const tabNum = parseInt(selectedTab)
-        if (p === tabNum) {
-          sales = pResults?.pl?.salesRevenue || 0
-          profit = pResults?.pl?.operatingProfit || 0
-          salesQty = pResults?.prod?.salesCount || 0
-          totalNetAssets = pResults?.bs?.totalNetAssets || 0
-        } else {
-          return null
-        }
-      }
-
-      return {
+      periodsList.push({
         period: p,
         totalNetAssets,
         sales,
         profit,
         salesQty,
         averagePrice: salesQty > 0 ? Math.round(sales / salesQty) : 0
-      }
+      })
     }
 
-    // 全期のデータ取得
-    const allPeriods = []
-    for (let p = 1; p <= 5; p++) {
-      const pData = periods[p]
-      if (!pData) continue
-
-      const pResults = calculateFinancials(pData.carryover, pData.ledger, pData.actuals, p)
-
-      if (selectedTab === 'overall') {
-        allPeriods.push({
-          period: p,
-          totalNetAssets: pResults?.bs?.totalNetAssets || 0,
-          sales: pResults?.pl?.salesRevenue || 0,
-          profit: pResults?.pl?.operatingProfit || 0,
-          salesQty: pResults?.prod?.salesCount || 0,
-          averagePrice: pResults?.prod?.salesCount > 0 ? Math.round((pResults?.pl?.salesRevenue || 0) / (pResults?.prod?.salesCount || 1)) : 0
-        })
-      } else {
-        const tabNum = parseInt(selectedTab)
-        if (p === tabNum) {
-          allPeriods.push({
-            period: p,
-            totalNetAssets: pResults?.bs?.totalNetAssets || 0,
-            sales: pResults?.pl?.salesRevenue || 0,
-            profit: pResults?.pl?.operatingProfit || 0,
-            salesQty: pResults?.prod?.salesCount || 0,
-            averagePrice: pResults?.prod?.salesCount > 0 ? Math.round((pResults?.pl?.salesRevenue || 0) / (pResults?.prod?.salesCount || 1)) : 0
-          })
-        }
-      }
-    }
-
-    return allPeriods.sort((a, b) => (b.totalNetAssets || 0) - (a.totalNetAssets || 0))
-  }
-
-  const sortedPeriods = getProcessedPeriods()
+    return periodsList.sort((a, b) => (b.totalNetAssets || 0) - (a.totalNetAssets || 0))
+  }, [periods])
 
   return (
     <div style={{ padding: '20px', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

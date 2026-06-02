@@ -9,8 +9,8 @@ export default function CashLedger({ carryover, ledger, onUpdateLedger, results,
 
   const categoryEntries = Object.entries(CATEGORIES).map(([code, info]) => ({
     code,
-    name: info.name,
-    requiresQuantity: info.requiresQuantity
+    name: info.label || info.name || '不明',
+    requiresQuantity: false
   }))
 
   // 科目の入力フォーム動的変更
@@ -242,7 +242,7 @@ export default function CashLedger({ carryover, ledger, onUpdateLedger, results,
                 {transaction.voucherNo}
               </div>
               <div style={{ color: 'var(--text-primary)', fontWeight: '500' }}>
-                {transaction.category} - {CATEGORIES[transaction.category]?.name || '不明'}
+                {transaction.category} - {CATEGORIES[transaction.category]?.label || CATEGORIES[transaction.category]?.name || '不明'}
               </div>
               <div style={{ textAlign: 'right', fontWeight: 'bold', color: 'var(--mg-blue)' }}>
                 {transaction.amount.toLocaleString()}
