@@ -65,6 +65,7 @@ html, body {
   overflow: hidden;
   width: 100%;
   gap: 0;
+  position: relative;
 }
 
 /* Sidebar - 左側 */
@@ -84,25 +85,31 @@ html, body {
 /* メインコンテンツ */
 .main-content {
   flex: 1;
-  overflow-y: auto;
+  height: 100%;
+  overflow-y: auto; /* スクロールを許可して情報がはみ出しても見えるように戻す */
   overflow-x: hidden;
   background: var(--bg-app);
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
   width: 100%;
   min-width: 0;
+  padding: 16px; /* 余白は16pxのスリムな状態を維持 */
+  display: flex;
+  flex-direction: column;
 }
 
-/* 会社盤ミニマップパネル - 右側 */
+/* 会社盤ミニマップパネル - 右上にフロート表示 */
 .minimap-panel {
-  width: var(--minimap-width);
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 400px;
+  max-height: calc(100% - 32px);
   background: var(--bg-shell);
-  border-left: 1px solid var(--border-glass);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
   overflow-y: auto;
   padding: 16px;
-  box-shadow: var(--shadow-sm);
-  flex-shrink: 0;
-  z-index: 30;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 100;
 }
 
 /* 縦向きでは非表示（表示しないより、本来は画面を横に向けるよう促す） */

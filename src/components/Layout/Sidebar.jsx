@@ -9,7 +9,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
     { id: 'statements', label: '決算書', icon: '📈' },
     { id: 'periodEnd', label: '期末', icon: '📅' },
     { id: 'plan', label: '計画', icon: '🎯' },
-    { id: 'board', label: '会社盤', icon: '🎮' },
     { id: 'settings', label: '設定', icon: '⚙️' },
   ]
 

@@ -84,8 +84,8 @@ function FinancialStatements({ results, carryover, currentPeriod, ledger, onShow
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px',
-            padding: '14px 16px',
-            borderRadius: '12px',
+            padding: '12px 16px',
+            borderRadius: '8px', /* 他のボタンに合わせ8pxへ統一 */
             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.06)'
           }}
         >

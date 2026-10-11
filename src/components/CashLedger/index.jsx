@@ -104,7 +104,6 @@ function CashLedger({ carryover, ledger, onUpdateLedger, results, currentPeriod,
   // 電卓の状態
   const [calcInput, setCalcInput] = useState('');
   const [showCalculator, setShowCalculator] = useState(false);
-  const [showMinimap, setShowMinimap] = useState(false);
 
   // フォームリセット関数
   const resetForm = () => {
@@ -701,47 +700,18 @@ function CashLedger({ carryover, ledger, onUpdateLedger, results, currentPeriod,
         <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
           第 {visibleLedger.length > 0 ? (visibleLedger.length) : 0} 取引完了
         </span>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: '4px', marginBottom: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginTop: '4px', marginBottom: '8px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>現在の手元現金残高</span>
           <span className="electric-number" style={{ fontSize: '2rem', color: results.bookEndingCash < 0 ? '#ef4444' : 'var(--text-primary)' }}>
             ¥ {results.bookEndingCash.toLocaleString()} <span style={{ fontSize: '1rem', fontWeight: '500' }}>万</span>
           </span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-glass)', paddingTop: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', borderTop: '1px solid var(--border-glass)', paddingTop: '8px' }}>
           <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>現在までの経常利益 (G)</span>
           <span className="electric-number" style={{ fontSize: '1.2rem', color: (results?.pl?.operatingProfit || 0) >= 0 ? 'var(--mg-pink)' : '#ef4444' }}>
             {(results?.pl?.operatingProfit || 0) >= 0 ? '+' : ''}¥ {results?.pl?.operatingProfit || 0} 万
           </span>
         </div>
-      </div>
-
-      {/* 会社盤ミニマップのアコーディオン */}
-      <div style={{ margin: '8px 16px' }}>
-        <button
-          type="button"
-          onClick={() => setShowMinimap(!showMinimap)}
-          className="btn-premium btn-secondary"
-          style={{ 
-            width: '100%', 
-            padding: '10px', 
-            fontSize: '0.78rem', 
-            borderRadius: '10px', 
-            display: 'flex', 
-            justifyContent: 'center', 
-            alignItems: 'center', 
-            gap: '8px', 
-            border: '1px solid rgba(0, 176, 255, 0.2)',
-            background: showMinimap ? 'rgba(0, 176, 255, 0.1)' : 'rgba(0, 0, 0, 0.02)',
-            color: showMinimap ? '#00e676' : 'var(--text-secondary)'
-          }}
-        >
-          {showMinimap ? "盤面ミニマップを非表示 ▽" : "🔮 リアルタイム会社盤ミニマップを表示 ▷"}
-        </button>
-        {showMinimap && (
-          <div style={{ marginTop: '8px' }}>
-            <CompanyBoardMinimap results={results} />
-          </div>
-        )}
       </div>
 
       {/* 掛け取引モードへの切り替えバナー */}
