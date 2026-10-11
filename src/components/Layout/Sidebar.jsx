@@ -1,4 +1,3 @@
-import React from 'react'
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   const isPortrait = window.innerWidth < window.innerHeight

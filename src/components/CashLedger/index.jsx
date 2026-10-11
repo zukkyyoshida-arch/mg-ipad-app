@@ -1,4 +1,4 @@
-import { CATEGORIES, SALARY_TABLE } from '../../utils/calculations';
+import { CATEGORIES } from '../../utils/calculations';
 import CompanyBoardMinimap from '../CompanyBoardMinimap';
 import { useState, useRef } from 'react';
 
@@ -680,7 +680,7 @@ function CashLedger({ carryover, ledger, onUpdateLedger, results, currentPeriod,
         } else {
           setCalcInput('Error');
         }
-      } catch (e) {
+      } catch {
         setCalcInput('Error');
       }
     } else {

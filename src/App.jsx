@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { calculateFinancials, DEFAULT_PERIOD_DATA } from './utils/calculations'
 import CashLedger from './components/CashLedger'
 import FinancialStatements from './components/FinancialStatements'
@@ -22,14 +22,14 @@ const safeStorage = {
   getItem: (key) => {
     try {
       return localStorage.getItem(key)
-    } catch (e) {
+    } catch {
       return null
     }
   },
   setItem: (key, value) => {
     try {
       localStorage.setItem(key, value)
-    } catch (e) {}
+    } catch { /* 無視 */ }
   }
 }
 
