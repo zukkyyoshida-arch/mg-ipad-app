@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { calculateBudget } from '../../utils/calculations';
 
 function ManagementPlan({ budget, carryover, onUpdateBudget, results }) {

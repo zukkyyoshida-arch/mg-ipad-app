@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function PerformanceReport({ ledger, results, prevLedger, prevResults, currentPeriod, onClose }) {
   const analytics = {
