@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800;900&family=Noto+Sans+JP:wght@500;700;900&display=swap');
 
 :root {
-  /* Fonts */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Fonts - 日本語が力強くハッキリと見えるNoto Sans JPを導入 */
+  --font-sans: 'Noto Sans JP', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-heading: 'Outfit', 'Noto Sans JP', sans-serif;
 
   /* Theme Defaults */
   --bg-app: #F3F4F6;
@@ -67,6 +67,7 @@ html, body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 16px;
+  font-weight: 500; /* デフォルトを500(中太)にし、文字の細さ・ダサさを解消 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
@@ -129,4 +130,197 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 24px;
     font-weight: bold;
   }
+}
+
+/* Premium Buttons Definition */
+.btn-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 600 !important;
+  font-size: 0.9rem;
+  padding: 10px 18px !important;
+  border-radius: 8px !important; /* モバイル版と同様のスマートな8px角丸 */
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  gap: 8px;
+}
+
+.btn-premium:hover {
+  opacity: 0.95;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-premium:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.btn-primary {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #1D4ED8 !important;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-glass-focused) !important;
+}
+
+.btn-secondary:hover {
+  background-color: #F9FAFB !important;
+}
+
+.btn-success {
+  background-color: var(--mg-green) !important;
+  color: white !important;
+}
+
+.btn-danger {
+  background-color: #FEF2F2 !important;
+  color: #DC2626 !important;
+  border: 1px solid #FCA5A5 !important;
+}
+
+/* Form Input & Fields Alignment */
+.form-group {
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.form-group label {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: left;
+  padding-left: 2px;
+}
+
+.form-input {
+  width: 100% !important;
+  height: 42px;
+  padding: 8px 16px !important; /* 縦方向の余白を圧縮してスタイリッシュに */
+  border-radius: 12px !important; /* 美しい角丸 */
+  border: 1px solid #E5E7EB !important;
+  background-color: #FFFFFF !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  outline: none;
+}
+
+.form-input:focus {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px rgba(42, 132, 255, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  background-color: #FFFFFF;
+}
+
+.form-input:disabled {
+  background-color: #F3F4F6 !important;
+  color: var(--text-muted) !important;
+  cursor: not-allowed;
+  border-color: #E5E7EB !important;
+}
+
+/* Alignment Helper */
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-row .form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Segmented Control (決算書等のタブ切り替え) */
+.segmented-control {
+  display: flex;
+  background-color: var(--bg-app);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 4px;
+  margin: 12px 0px; /* 横マージンを0にして左右のアラインメントをピッタリ揃える */
+}
+
+.segment-item {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+}
+
+.segment-item.active {
+  background-color: #FFFFFF;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-glass);
+}
+
+/* Financial Statements & General Tables Optimization */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 4px;
+}
+
+th, td {
+  padding: 6px 10px !important; /* セルの余白をスリムにしてスクロール不要に */
+  font-size: 0.82rem !important; /* 文字を少し小さくして1画面での見通しを劇的に向上 */
+  line-height: 1.25 !important;
+  border-bottom: 1px solid var(--border-glass);
+}
+
+th {
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-align: left;
+  background-color: var(--surface-subtle);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* 決算書全体のカード余白微調整 */
+.glass-card {
+  padding: 10px 14px !important; /* 少しコンパクトにして画面フィットを高める */
+  margin: 8px 0px !important;
+}
+
+/* 今期の経営成績を見るボタンの追加調整 */
+.saas-kpi-panel {
+  padding: 10px 14px !important;
+  margin-bottom: 12px !important;
 }
